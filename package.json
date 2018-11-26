@@ -1,0 +1,66 @@
+{
+  "name": "christmasnazo",
+  "version": "1.0.0",
+  "description": "Nazo desu",
+  "scripts": {
+    "build": "cross-env NODE_ENV=development webpack --config webpack.dev.js --colors",
+    "build:prod": "cross-env NODE_ENV=production webpack --config webpack.prod.js --colors",
+    "start": "cross-env NODE_ENV=development webpack-dev-server --config webpack.dev.js --progress --colors --history-api-fallback --content-base public/",
+    "start:prod": "cross-env NODE_ENV=production webpack-dev-server --config webpack.prod.js --progress --colors --history-api-fallback --content-base public/",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/birtles/christmasnazo.git"
+  },
+  "author": "Brian Birtles",
+  "bugs": {
+    "url": "https://github.com/birtles/christmasnazo/issues"
+  },
+  "homepage": "https://github.com/birtles/christmasnazo#readme",
+  "dependencies": {
+    "@types/pouchdb": "^6.3.2",
+    "@types/pouchdb-upsert": "^2.2.5",
+    "@types/react": "^16.7.7",
+    "@types/react-dom": "^16.0.10",
+    "@types/react-redux": "^6.0.10",
+    "cross-env": "^5.2.0",
+    "pouch-resolve-conflicts": "^1.2.0",
+    "pouchdb": "^7.0.0",
+    "pouchdb-collate": "^7.0.0",
+    "pouchdb-upsert": "^2.2.0",
+    "react": "^16.6.3",
+    "react-dom": "^16.6.3",
+    "react-redux": "^5.1.1",
+    "redux": "^4.0.1",
+    "redux-logger": "^3.0.6",
+    "ts-loader": "^5.3.0",
+    "typescript": "^3.1.6",
+    "uglifyjs-webpack-plugin": "^2.0.1",
+    "webpack": "^4.26.1",
+    "webpack-cli": "^3.1.2",
+    "webpack-merge": "^4.1.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.9",
+    "jest": "^23.6.0",
+    "pouchdb-adapter-memory": "^7.0.0",
+    "ts-jest": "^23.10.5",
+    "webpack-dev-server": "^3.1.10"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "./node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": ".test.tsx?$"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "bracketSpacing": true
+  }
+}
