@@ -51,12 +51,20 @@
   "jest": {
     "moduleFileExtensions": [
       "ts",
-      "tsx"
+      "tsx",
+      "js"
     ],
     "transform": {
-      "^.+\\.tsx?$": "./node_modules/ts-jest/preprocessor.js"
+      "^.+\\.tsx?$": "ts-jest"
     },
-    "testRegex": ".test.tsx?$"
+    "testRegex": ".test.tsx?$",
+    "globals": {
+      "ts-jest": {
+        "tsConfig": {
+          "esModuleInterop": true
+        }
+      }
+    }
   },
   "prettier": {
     "singleQuote": true,
