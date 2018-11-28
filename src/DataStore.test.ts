@@ -1,6 +1,6 @@
 import PouchDB from 'pouchdb';
 
-import DataStore from './DataStore';
+import { DataStore, TeamChange } from './DataStore';
 import { NewTeam } from './Team';
 
 PouchDB.plugin(require('pouchdb-adapter-memory'));
@@ -75,11 +75,75 @@ describe('DataStore', () => {
     });
 
     const teams = await dataStore.getTeams();
-    expect(teams).toEqual([ teamA, teamB, teamC ]);
+    expect(teams).toEqual([teamA, teamB, teamC]);
   });
 
-  // Notifies changes to teams
+  it('reports added teams', async () => {
+    const changesPromise = waitForChangeEvents<TeamChange>(
+      dataStore,
+      'team',
+      1
+    );
+
+    const putTeam = await dataStore.putTeam(typicalNewTeam);
+
+    const changes = await changesPromise;
+    expect(changes[0].team).toMatchObject(putTeam);
+  });
+
+  it('reports deleted teams', async () => {
+    const changesPromise = waitForChangeEvents<TeamChange>(
+      dataStore,
+      'team',
+      2
+    );
+    const putTeam = await dataStore.putTeam(typicalNewTeam);
+
+    await dataStore.deleteTeam(putTeam.id);
+
+    const changes = await changesPromise;
+    expect(changes[1].team.id).toBe(putTeam.id);
+    expect(changes[1].deleted).toBeTruthy();
+  });
+
+  it('reports changes to teams', async () => {
+    const changesPromise = waitForChangeEvents<TeamChange>(
+      dataStore,
+      'team',
+      2
+    );
+    const putTeam = await dataStore.putTeam(typicalNewTeam);
+
+    await dataStore.putTeam({ ...putTeam, name: 'Updated' });
+
+    const changes = await changesPromise;
+    expect(changes[1].team.name).toBe('Updated');
+  });
+
   // Syncs data
   // Sets the game status
   // Allows deleting all teams
 });
+
+function waitForChangeEvents<EventType>(
+  dataStore: DataStore,
+  type: string,
+  num: number
+): Promise<Array<EventType>> {
+  const events: EventType[] = [];
+
+  let resolver: (e: typeof events) => void;
+  const promise = new Promise<typeof events>(resolve => {
+    resolver = resolve;
+  });
+
+  let recordedChanges = 0;
+  dataStore.changes.on(type, change => {
+    events.push(change);
+    if (++recordedChanges === num) {
+      resolver(events);
+    }
+  });
+
+  return promise;
+}

@@ -1,4 +1,5 @@
 import PouchDB from 'pouchdb';
+import EventEmitter from 'event-emitter';
 
 import { Team, TeamUpdate, NewTeam } from './Team';
 import { generateUniqueTimestampId, stripFields } from './utils';
@@ -16,8 +17,16 @@ interface TeamContent {
   startTime: number;
   endTime: number | null;
 }
-type ExistingTeamDoc = PouchDB.Core.ExistingDocument<TeamContent>;
 type TeamDoc = PouchDB.Core.Document<TeamContent>;
+type ExistingTeamDoc = PouchDB.Core.ExistingDocument<TeamContent>;
+type ExistingTeamDocWithChanges = PouchDB.Core.ExistingDocument<
+  TeamContent & PouchDB.Core.ChangesMeta
+>;
+
+export interface TeamChange {
+  team: Team;
+  deleted?: boolean;
+}
 
 const TEAM_PREFIX = 'team-';
 
@@ -37,6 +46,7 @@ export class DataStore {
   initDone: Promise<PouchDB.Core.DatabaseInfo>;
   remoteDb?: PouchDB.Database;
   remoteSync?: PouchDB.Replication.Sync<{}>;
+  changesEmitter?: EventEmitter.Emitter;
 
   constructor(options?: DataStoreOptions) {
     const dbOptions = options || {};
@@ -140,6 +150,47 @@ export class DataStore {
 
   async deleteTeam(id: string): Promise<void> {
     await stubbornDelete(TEAM_PREFIX + id, this.db!);
+  }
+
+  get changes() {
+    if (this.changesEmitter) {
+      return this.changesEmitter;
+    }
+
+    this.changesEmitter = EventEmitter(null);
+
+    const emit = this.changesEmitter!.emit.bind(this.changesEmitter!);
+    const dbChanges = this.db!.changes({
+      since: 'now',
+      live: true,
+      include_docs: true,
+    });
+
+    const isTeamChangeDoc = (
+      changeDoc:
+        | PouchDB.Core.ExistingDocument<any & PouchDB.Core.ChangesMeta>
+        | undefined
+    ): changeDoc is ExistingTeamDocWithChanges => {
+      return changeDoc && changeDoc._id.startsWith(TEAM_PREFIX);
+    };
+
+    dbChanges.on('change', async change => {
+      console.assert(change.changes && change.doc, 'Unexpected changes event');
+
+      if (isTeamChangeDoc(change.doc)) {
+        const result: TeamChange = {
+          team: parseTeam(
+            stripFields(change.doc, ['_conflicts', '_deleted', '_attachments'])
+          ),
+        };
+        if (change.deleted) {
+          result.deleted = true;
+        }
+        emit('team', result);
+      }
+    });
+
+    return this.changesEmitter;
   }
 
   // Intended for unit testing only
