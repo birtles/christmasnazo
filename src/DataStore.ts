@@ -9,6 +9,13 @@ PouchDB.plugin(require('pouch-resolve-conflicts'));
 
 type DataStoreOptions = PouchDB.Configuration.LocalDatabaseConfiguration;
 
+interface SyncOptions {
+  onError?: (err: PouchDB.Core.Error) => void;
+  username?: string;
+  password?: string;
+  batchSize?: number;
+}
+
 interface TeamContent {
   name: string;
   color: string;
@@ -27,6 +34,14 @@ export interface TeamChange {
   team: Team;
   deleted?: boolean;
 }
+
+const isTeamChangeDoc = (
+  changeDoc:
+    | PouchDB.Core.ExistingDocument<any & PouchDB.Core.ChangesMeta>
+    | undefined
+): changeDoc is ExistingTeamDocWithChanges => {
+  return changeDoc && changeDoc._id.startsWith(TEAM_PREFIX);
+};
 
 const TEAM_PREFIX = 'team-';
 
@@ -166,14 +181,6 @@ export class DataStore {
       include_docs: true,
     });
 
-    const isTeamChangeDoc = (
-      changeDoc:
-        | PouchDB.Core.ExistingDocument<any & PouchDB.Core.ChangesMeta>
-        | undefined
-    ): changeDoc is ExistingTeamDocWithChanges => {
-      return changeDoc && changeDoc._id.startsWith(TEAM_PREFIX);
-    };
-
     dbChanges.on('change', async change => {
       console.assert(change.changes && change.doc, 'Unexpected changes event');
 
@@ -191,6 +198,138 @@ export class DataStore {
     });
 
     return this.changesEmitter;
+  }
+
+  async setSyncServer(
+    syncServer?: string | PouchDB.Database | null,
+    options?: SyncOptions
+  ) {
+    // Setup an alias for error handling
+    const reportErrorAsync = (err: Error) => {
+      if (options && options.onError) {
+        setImmediate(() => {
+          options.onError!(err);
+        });
+      }
+    };
+
+    if (this.remoteSync) {
+      this.remoteSync.cancel();
+      this.remoteSync = undefined;
+    }
+
+    this.remoteDb = undefined;
+
+    if (!syncServer) {
+      return;
+    }
+
+    let dbOptions;
+    if (options && options.username) {
+      dbOptions = {
+        auth: {
+          username: options.username,
+          password: options.password,
+        },
+      };
+    }
+    this.remoteDb =
+      typeof syncServer === 'string'
+        ? new PouchDB(syncServer, dbOptions)
+        : syncServer;
+
+    const originalDbName = this.remoteDb.name;
+
+    // Initial sync
+    let localUpdateSeq: number | undefined;
+    let remoteUpdateSeq: number | undefined;
+    try {
+      const localInfo = await this.db!.info();
+      localUpdateSeq = parseInt(<string>localInfo.update_seq, 10);
+
+      const remoteInfo = await this.remoteDb!.info();
+      remoteUpdateSeq = parseInt(<string>remoteInfo.update_seq, 10);
+    } catch (err) {
+      // Skip error if the remote DB has already been changed.
+      if (!this.remoteDb || originalDbName !== this.remoteDb.name) {
+        return;
+      }
+      this.remoteDb = undefined;
+      reportErrorAsync(err);
+      throw err;
+    }
+
+    const pushPullOpts =
+      options && options.batchSize
+        ? { batch_size: options.batchSize }
+        : undefined;
+
+    this.remoteSync = this.db!.sync(this.remoteDb!, {
+      live: true,
+      retry: true,
+      pull: pushPullOpts,
+      push: pushPullOpts,
+    });
+
+    // Register change callback which is where we resolve conflicts.
+    const changeCallback = (info: PouchDB.Replication.SyncResult<{}>) => {
+      // Skip events if they are from an old remote DB
+      if (!this.remoteDb || originalDbName !== this.remoteDb.name) {
+        return;
+      }
+
+      // Resolve any conflicts
+      if (info.direction === 'pull') {
+        this.onSyncChange(info.change.docs);
+      }
+    };
+    this.remoteSync.on('change', changeCallback);
+
+    // Register error callback.
+    if (options && options.onError) {
+      const errorCallback = (info: PouchDB.Replication.SyncResult<{}>) => {
+        // Skip events if they are from an old remote DB
+        if (!this.remoteDb || originalDbName !== this.remoteDb.name) {
+          return;
+        }
+
+        options!.onError!((info as unknown) as Error);
+      };
+      this.remoteSync.on('error', errorCallback);
+    }
+
+    await this.remoteDb;
+  }
+
+  async onSyncChange(docs: PouchDB.Core.ExistingDocument<{}>[]) {
+    // Resolve any conflicts
+    for (const doc of docs) {
+      if (isTeamChangeDoc(doc)) {
+        if (doc._deleted) {
+          return;
+        }
+
+        const result = await this.db!.get<TeamContent>(doc._id, {
+          conflicts: true,
+        });
+        if (!result._conflicts) {
+          return;
+        }
+
+        await this.db!.resolveConflicts(result, (a, b) => {
+          if (
+            b.question > a.question ||
+            b.startTime > a.startTime ||
+            (b.endTime && !a.endTime) ||
+            (b.endTime && a.endTime && b.endTime > a.endTime)
+          ) {
+            return b;
+          }
+
+          return a;
+        });
+      }
+    }
   }
 
   // Intended for unit testing only
