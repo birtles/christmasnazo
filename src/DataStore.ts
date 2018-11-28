@@ -125,10 +125,19 @@ export class DataStore {
   async getTeam(id: string): Promise<Team> {
     return parseTeam(await this.db!.get<TeamContent>(TEAM_PREFIX + id));
   }
-  /*
+
   async getTeams(): Promise<Array<Team>> {
+    const teamDocs = await this.db!.allDocs<TeamContent>({
+      include_docs: true,
+      startkey: TEAM_PREFIX,
+      endkey: TEAM_PREFIX + '\ufff0',
+    });
+
+    return teamDocs.rows
+      .filter(row => !!row.doc)
+      .map(row => parseTeam(row.doc!));
   }
-  */
+
   async deleteTeam(id: string): Promise<void> {
     await stubbornDelete(TEAM_PREFIX + id, this.db!);
   }

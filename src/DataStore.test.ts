@@ -60,7 +60,24 @@ describe('DataStore', () => {
     expect(gotTeam).toEqual(updatedTeam);
   });
 
-  // Returns all teams
+  it('returns all teams', async () => {
+    const teamA = await dataStore.putTeam({
+      ...typicalNewTeam,
+      name: 'Team A',
+    });
+    const teamB = await dataStore.putTeam({
+      ...typicalNewTeam,
+      name: 'Team B',
+    });
+    const teamC = await dataStore.putTeam({
+      ...typicalNewTeam,
+      name: 'Team C',
+    });
+
+    const teams = await dataStore.getTeams();
+    expect(teams).toEqual([ teamA, teamB, teamC ]);
+  });
+
   // Notifies changes to teams
   // Syncs data
   // Sets the game status
