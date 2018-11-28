@@ -1,6 +1,6 @@
 import PouchDB from 'pouchdb';
 
-import { Team, NewTeam } from './Team';
+import { Team, TeamUpdate, NewTeam } from './Team';
 import { generateUniqueTimestampId, stripFields } from './utils';
 
 PouchDB.plugin(require('pouchdb-upsert'));
@@ -77,7 +77,7 @@ export class DataStore {
     return parseTeam(teamDoc);
   }
 
-  async updateTeam(team: Partial<Team>): Promise<Team> {
+  async updateTeam(team: TeamUpdate): Promise<Team> {
     let teamDoc: ExistingTeamDoc | undefined;
     let missing = false;
 
@@ -130,6 +130,7 @@ export class DataStore {
   }
   */
   async deleteTeam(id: string): Promise<void> {
+    await stubbornDelete(TEAM_PREFIX + id, this.db!);
   }
 
   // Intended for unit testing only
@@ -146,6 +147,34 @@ export class DataStore {
 
   getSyncServer() {
     return this.remoteDb;
+  }
+}
+
+/**
+ * Keep trying to delete a document if conflicts are encountered.
+ */
+async function stubbornDelete(id: string, db: PouchDB.Database): Promise<void> {
+  let doc;
+  try {
+    doc = await db.get(id);
+  } catch (err) {
+    // If the document is missing then just return
+    if (err.status === 404) {
+      return;
+    }
+    throw err;
+  }
+
+  try {
+    await db.remove(doc);
+    return;
+  } catch (err) {
+    if (err.status !== 409) {
+      throw err;
+    }
+    // If there is a conflict, just keep trying
+    doc = await db.get(id);
+    return stubbornDelete(doc._id, db);
   }
 }
 

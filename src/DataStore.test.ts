@@ -30,8 +30,39 @@ describe('DataStore', () => {
 
   it('returns a newly-added team', async () => {
     const putTeam = await dataStore.putTeam(typicalNewTeam);
-    const gotTeam = await dataStore.getTeam(putTeam.id!);
+    const gotTeam = await dataStore.getTeam(putTeam.id);
 
     expect(gotTeam).toEqual(putTeam);
   });
+
+  it('deletes a team', async () => {
+    const putTeam = await dataStore.putTeam(typicalNewTeam);
+    await dataStore.deleteTeam(putTeam.id);
+    await expect(dataStore.getTeam(putTeam.id)).rejects.toMatchObject({
+      status: 404,
+      name: 'not_found',
+      message: 'missing',
+      reason: 'deleted',
+    });
+  });
+
+  it('updates a team', async () => {
+    const putTeam = await dataStore.putTeam(typicalNewTeam);
+    const updatedTeam = await dataStore.updateTeam({
+      id: putTeam.id,
+      name: 'Updated',
+    });
+    expect(updatedTeam).toMatchObject({
+      id: putTeam.id,
+      name: 'Updated',
+    });
+    const gotTeam = await dataStore.getTeam(putTeam.id);
+    expect(gotTeam).toEqual(updatedTeam);
+  });
+
+  // Returns all teams
+  // Notifies changes to teams
+  // Syncs data
+  // Sets the game status
+  // Allows deleting all teams
 });

@@ -1,4 +1,4 @@
-import { Omit } from './utils';
+import { Omit, Overwrite } from './utils';
 
 export interface Team {
   id: string;
@@ -11,3 +11,4 @@ export interface Team {
 }
 
 export type NewTeam = Omit<Team, 'id'>;
+export type TeamUpdate = Overwrite<Partial<Team>, { id: string }>;
