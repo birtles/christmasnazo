@@ -167,6 +167,24 @@ export class DataStore {
     await stubbornDelete(TEAM_PREFIX + id, this.db!);
   }
 
+  async deleteAllTeams(): Promise<void> {
+    const teamDocs = await this.db!.allDocs<TeamContent>({
+      include_docs: true,
+      startkey: TEAM_PREFIX,
+      endkey: TEAM_PREFIX + '\ufff0',
+    });
+
+    // We don't deal with conflicts here because hopefully we're only running
+    // this while no one else is using the system.
+    await this.db!.bulkDocs(
+      teamDocs.rows.filter(row => !!row.doc).map(row => ({
+        _id: row.doc!._id,
+        _rev: row.doc!._rev,
+        _deleted: true,
+      }))
+    );
+  }
+
   get changes() {
     if (this.changesEmitter) {
       return this.changesEmitter;

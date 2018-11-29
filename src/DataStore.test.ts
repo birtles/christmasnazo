@@ -79,6 +79,26 @@ describe('DataStore', () => {
     expect(teams).toEqual([teamA, teamB, teamC]);
   });
 
+  it('deletes all teams', async () => {
+    const teamA = await dataStore.putTeam({
+      ...typicalNewTeam,
+      name: 'Team A',
+    });
+    const teamB = await dataStore.putTeam({
+      ...typicalNewTeam,
+      name: 'Team B',
+    });
+    const teamC = await dataStore.putTeam({
+      ...typicalNewTeam,
+      name: 'Team C',
+    });
+
+    await dataStore.deleteAllTeams();
+
+    const teams = await dataStore.getTeams();
+    expect(teams).toEqual([]);
+  });
+
   it('reports added teams', async () => {
     const changesPromise = waitForChangeEvents<TeamChange>(
       dataStore,
@@ -186,9 +206,7 @@ describe('DataStore', () => {
     expect(gotTeam.question).toEqual(1);
   });
 
-  // Syncs data
   // Sets the game status
-  // Allows deleting all teams
 });
 
 function waitForChangeEvents<EventType>(
