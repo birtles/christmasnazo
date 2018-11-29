@@ -1,6 +1,12 @@
 import PouchDB from 'pouchdb';
 
-import { DataStore, TeamChange, TeamContent, TEAM_PREFIX } from './DataStore';
+import {
+  DataStore,
+  GameStatusChange,
+  TeamChange,
+  TeamContent,
+  TEAM_PREFIX,
+} from './DataStore';
 import { Team, NewTeam } from './Team';
 import { stripFields } from './utils';
 
@@ -206,7 +212,29 @@ describe('DataStore', () => {
     expect(gotTeam.question).toEqual(1);
   });
 
-  // Sets the game status
+  it('gets the game status', async () => {
+    const status = await dataStore.getGameStatus();
+    expect(status).toEqual({ active: true });
+  });
+
+  it('sets the game status', async () => {
+    await dataStore.setGameStatus({ active: false });
+    const status = await dataStore.getGameStatus();
+    expect(status).toEqual({ active: false });
+  });
+
+  it('reports changes to the game status', async () => {
+    const changesPromise = waitForChangeEvents<GameStatusChange>(
+      dataStore,
+      'status',
+      1
+    );
+
+    await dataStore.setGameStatus({ active: false });
+
+    const changes = await changesPromise;
+    expect(changes[0].status.active).toBe(false);
+  });
 });
 
 function waitForChangeEvents<EventType>(

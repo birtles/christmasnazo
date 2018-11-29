@@ -2,6 +2,7 @@ import PouchDB from 'pouchdb';
 import EventEmitter from 'event-emitter';
 
 import { Team, TeamUpdate, NewTeam } from './Team';
+import { GameStatus } from './GameStatus';
 import { generateUniqueTimestampId, stripFields } from './utils';
 
 PouchDB.plugin(require('pouchdb-upsert'));
@@ -54,6 +55,24 @@ const parseTeam = (team: ExistingTeamDoc | TeamDoc): Team => {
   };
 
   return result;
+};
+
+interface GameStatusContent {
+  active: boolean;
+}
+
+export interface GameStatusChange {
+  status: GameStatus;
+}
+
+const isStatusChangeDoc = (
+  changeDoc:
+    | PouchDB.Core.ExistingDocument<any & PouchDB.Core.ChangesMeta>
+    | undefined
+): changeDoc is PouchDB.Core.ExistingDocument<
+  GameStatusContent & PouchDB.Core.ChangesMeta
+> => {
+  return changeDoc && changeDoc._id === 'status';
 };
 
 export class DataStore {
@@ -185,6 +204,33 @@ export class DataStore {
     );
   }
 
+  async getGameStatus(): Promise<GameStatus> {
+    try {
+      const status = await this.db!.get<GameStatusContent>('status');
+      return stripFields(status, ['_id', '_rev']);
+    } catch {
+      return { active: true };
+    }
+  }
+
+  async setGameStatus(status: GameStatus): Promise<void> {
+    let statusToPut:
+      | PouchDB.Core.Document<GameStatusContent>
+      | PouchDB.Core.ExistingDocument<GameStatusContent> = {
+      ...status,
+      _id: 'status',
+    };
+
+    try {
+      const existingStatus = await this.db!.get<GameStatusContent>('status');
+      statusToPut = { ...existingStatus, ...status };
+    } catch {
+      // No doc, ignore
+    }
+
+    await this.db!.put<GameStatusContent>(statusToPut);
+  }
+
   get changes() {
     if (this.changesEmitter) {
       return this.changesEmitter;
@@ -212,6 +258,11 @@ export class DataStore {
           result.deleted = true;
         }
         emit('team', result);
+      } else if (isStatusChangeDoc(change.doc)) {
+        const result: GameStatusChange = {
+          status: { active: change.doc.active },
+        };
+        emit('status', result);
       }
     });
 
