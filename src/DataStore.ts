@@ -16,7 +16,7 @@ interface SyncOptions {
   batchSize?: number;
 }
 
-interface TeamContent {
+export interface TeamContent {
   name: string;
   color: string;
   question: number;
@@ -43,7 +43,7 @@ const isTeamChangeDoc = (
   return changeDoc && changeDoc._id.startsWith(TEAM_PREFIX);
 };
 
-const TEAM_PREFIX = 'team-';
+export const TEAM_PREFIX = 'team-';
 
 const parseTeam = (team: ExistingTeamDoc | TeamDoc): Team => {
   const result: Team = {

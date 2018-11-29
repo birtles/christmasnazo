@@ -1,7 +1,8 @@
 import PouchDB from 'pouchdb';
 
-import { DataStore, TeamChange } from './DataStore';
-import { NewTeam } from './Team';
+import { DataStore, TeamChange, TeamContent, TEAM_PREFIX } from './DataStore';
+import { Team, NewTeam } from './Team';
+import { stripFields } from './utils';
 
 PouchDB.plugin(require('pouchdb-adapter-memory'));
 
@@ -118,6 +119,71 @@ describe('DataStore', () => {
 
     const changes = await changesPromise;
     expect(changes[1].team.name).toBe('Updated');
+  });
+
+  it('downloads existing teams from the remote server', async () => {
+    const teamA: Team = { ...typicalNewTeam, id: 'abc', name: 'Team A' };
+    const teamB: Team = { ...typicalNewTeam, id: 'def', name: 'Team B' };
+    const teams = [teamA, teamB];
+
+    for (const team of teams) {
+      await testRemote.put<TeamContent>({
+        ...stripFields(team, ['id']),
+        _id: TEAM_PREFIX + team.id,
+        startTime: team.startTime.getTime(),
+        endTime: null,
+      });
+    }
+
+    const changesPromise = waitForChangeEvents<TeamChange>(
+      dataStore,
+      'team',
+      teams.length
+    );
+
+    await dataStore.setSyncServer(testRemote);
+
+    const changes = await changesPromise;
+    expect(changes[0]).toEqual({ team: teamA });
+    expect(changes[1]).toEqual({ team: teamB });
+  });
+
+  it('uploads existing local teams', async () => {
+    await dataStore.putTeam({ ...typicalNewTeam, name: 'Team A' });
+    await dataStore.putTeam({ ...typicalNewTeam, name: 'Team B' });
+
+    await dataStore.setSyncServer(testRemote);
+    await new Promise(resolve => {
+      setTimeout(resolve, 2000);
+    });
+
+    const remoteTeams = await testRemote.allDocs({
+      include_docs: true,
+      descending: true,
+      startkey: TEAM_PREFIX + '\ufff0',
+      endkey: TEAM_PREFIX,
+    });
+    expect(remoteTeams.rows.length).toBe(2);
+  });
+
+  it('resolves conflicts', async () => {
+    const team = await dataStore.putTeam({ ...typicalNewTeam, question: 0 });
+
+    await testRemote.put<TeamContent>({
+      ...stripFields(team, ['id']),
+      _id: TEAM_PREFIX + team.id,
+      question: 1,
+      startTime: team.startTime.getTime(),
+      endTime: null,
+    });
+
+    await dataStore.setSyncServer(testRemote);
+    await new Promise(resolve => {
+      setTimeout(resolve, 2000);
+    });
+
+    const gotTeam = await dataStore.getTeam(team.id);
+    expect(gotTeam.question).toEqual(1);
   });
 
   // Syncs data
