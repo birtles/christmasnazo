@@ -31,6 +31,17 @@ if (process.env.NODE_ENV === 'development') {
 //
 
 const dataStore = new DataStore();
+dataStore
+  .setSyncServer(
+    'https://b62bf565-d36c-45ce-a12d-fc3bd31a256b-bluemix.cloudant.com/christmasnazo',
+    {
+      username: 'oldindsconlyinlyingourna',
+      password: '9a41c6611e776aa6f341973423d4817cc39b59c4',
+    }
+  )
+  .catch(() => {
+    alert('なんか、壊れてるみたい。更新してみたら？');
+  });
 
 //
 // Render the root component
