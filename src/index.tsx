@@ -1,18 +1,19 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
-import { createStore, applyMiddleware, compose } from 'redux';
+import { createStore, applyMiddleware, compose, Store } from 'redux';
 import { Provider } from 'react-redux';
 
-import reducer from './reducer';
+import { reducer, State } from './reducer';
+import * as actions from './actions';
 
-import DataStore from './DataStore';
+import { DataStore, TeamChange } from './DataStore';
 import { App } from './components/App';
 
 //
 // Redux store
 //
 
-let store;
+let store: Store<State, actions.Action>;
 if (process.env.NODE_ENV === 'development') {
   const { createLogger } = require('redux-logger');
   const loggerMiddleware = createLogger();
@@ -27,7 +28,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 //
-// Local data stores
+// Local data store
 //
 
 const dataStore = new DataStore();
@@ -42,6 +43,22 @@ dataStore
   .catch(() => {
     alert('なんか、壊れてるみたい。更新してみたら？');
   });
+
+// Trigger initial data fetch
+
+dataStore.getTeams().then(teams => {
+  store.dispatch(actions.loadTeams(teams));
+});
+
+// Watch for changes
+
+dataStore.changes.on('team', (change: TeamChange) => {
+  if (change.deleted) {
+    store.dispatch(actions.deleteTeam(change.team.id));
+  } else {
+    store.dispatch(actions.updateTeam(change.team));
+  }
+});
 
 //
 // Render the root component
