@@ -1,4 +1,5 @@
 import { Team } from './Team';
+import { GameStatus } from './GameStatus';
 
 export interface ErrorAction {
   type: 'ERROR';
@@ -78,6 +79,18 @@ export function showNewTeamForm(): ShowNewTeamFormAction {
   };
 }
 
+export interface UpdateGameStatusAction {
+  type: 'UPDATE_GAME_STATUS';
+  status: GameStatus;
+}
+
+export function updateGameStatus(status: GameStatus): UpdateGameStatusAction {
+  return {
+    type: 'UPDATE_GAME_STATUS',
+    status,
+  };
+}
+
 export type Action =
   | ErrorAction
   | LoadTeamsAction
@@ -85,4 +98,5 @@ export type Action =
   | DeleteTeamAction
   | SelectTeamAction
   | ClearTeamAction
-  | ShowNewTeamFormAction;
+  | ShowNewTeamFormAction
+  | UpdateGameStatusAction;

@@ -6,7 +6,7 @@ import { Provider } from 'react-redux';
 import { reducer, State } from './reducer';
 import * as actions from './actions';
 
-import { DataStore, TeamChange } from './DataStore';
+import { DataStore, GameStatusChange, TeamChange } from './DataStore';
 import { App } from './components/App';
 
 //
@@ -58,6 +58,9 @@ dataStore.changes.on('team', (change: TeamChange) => {
   } else {
     store.dispatch(actions.updateTeam(change.team));
   }
+});
+dataStore.changes.on('status', (change: GameStatusChange) => {
+  store.dispatch(actions.updateGameStatus(change.status));
 });
 
 // Get app mode

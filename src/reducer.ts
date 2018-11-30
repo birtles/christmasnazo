@@ -102,6 +102,13 @@ export function reducer(state = initialState, action: actions.Action): State {
       };
     }
 
+    case 'UPDATE_GAME_STATUS': {
+      return {
+        ...state,
+        isActive: action.status.active,
+      };
+    }
+
     default:
       return state;
   }

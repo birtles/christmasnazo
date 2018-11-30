@@ -6,6 +6,7 @@ import { State, NEW_TEAM } from '../reducer';
 import { ConnectedManageScreen } from './ConnectedManageScreen';
 import { ConnectedQuizScreen } from './ConnectedQuizScreen';
 import { ConnectedRegisterScreen } from './ConnectedRegisterScreen';
+import { ConnectedResultsScreen } from './ConnectedResultsScreen';
 import { ConnectedSelectScreen } from './ConnectedSelectScreen';
 import { ErrorScreen } from './ErrorScreen';
 import { LoadingScreen } from './LoadingScreen';
@@ -20,10 +21,6 @@ interface Props {
 }
 
 const AppInner: React.SFC<Props> = (props: Props) => {
-  let screen:
-    | 'results'
-    | 'quiz';
-
   if (props.error) {
     return <ErrorScreen error={props.error} />;
   } else if (props.isLoading) {
@@ -31,7 +28,7 @@ const AppInner: React.SFC<Props> = (props: Props) => {
   } else if (props.isManager) {
     return <ConnectedManageScreen dataStore={props.dataStore} />;
   } else if (!props.isActive) {
-    return <div className="error">Unimplemented screen</div>;
+    return <ConnectedResultsScreen />;
   } else if (props.teamState === 'register') {
     return <ConnectedRegisterScreen dataStore={props.dataStore} />;
   } else if (props.teamState === 'selected') {
