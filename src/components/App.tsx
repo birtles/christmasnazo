@@ -6,6 +6,7 @@ import { State, NEW_TEAM } from '../reducer';
 import { ConnectedManageScreen } from './ConnectedManageScreen';
 import { ConnectedSelectScreen } from './ConnectedSelectScreen';
 import { ConnectedRegisterScreen } from './ConnectedRegisterScreen';
+import { ErrorScreen } from './ErrorScreen';
 import { LoadingScreen } from './LoadingScreen';
 
 interface Props {
@@ -20,12 +21,10 @@ interface Props {
 const AppInner: React.SFC<Props> = (props: Props) => {
   let screen:
     | 'results'
-    | 'quiz'
-    | 'loading'
-    | 'error';
+    | 'quiz';
 
   if (props.error) {
-    screen = 'error';
+    return <ErrorScreen error={props.error} />;
   } else if (props.isLoading) {
     return <LoadingScreen />;
   } else if (props.isManager) {

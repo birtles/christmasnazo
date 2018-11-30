@@ -41,7 +41,7 @@ dataStore
     }
   )
   .catch(() => {
-    alert('なんか、壊れてるみたい。更新してみたら？');
+    store.dispatch(actions.error('サーバーがなくなちゃったよー'));
   });
 
 // Trigger initial data fetch
