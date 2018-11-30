@@ -23,6 +23,7 @@ export const TeamSelect: React.SFC<Props> = (props: Props) => {
       {props.teams.map(team => (
         <li key={team.id}>
           <button
+            className="rounded-button"
             data-team-id={team.id}
             style={{ '--team-color': team.color }}
             onClick={onClick}

@@ -1,11 +1,20 @@
-html, body {
+body, html {
+  font-family: Arial, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  box-sizing: border-box;
+  font-size: 18px;
+  line-height: 1.4;
   padding: 0;
   margin: 0;
+  height: 100%;
+  overflow: hidden;
 }
+
 body {
   background: black;
   color: white;
 }
+
 .header {
   display: flex;
   justify-content: center;
@@ -25,11 +34,86 @@ body {
   max-width: 500px;
 }
 
+.rounded-button {
+  border-radius: 2em;
+  border: 0px;
+  padding: 1em;
+  font-weight: 500;
+  min-width: 10em;
+  background: linear-gradient(white, rgb(255,210,210));
+}
+.minor-button {
+  background: none;
+  color: white;
+  border: none;
+  height: 3rem;
+  font-size: 0.7rem;
+}
+
+.select-screen {
+ text-align: center;
+}
+.select-screen li:not(:last-of-type) {
+  margin-bottom: 0.5rem;
+}
+.select-screen .team-select {
+  padding: 0.5rem 0;
+  margin: 0;
+}
+.select-screen .team-select li {
+  list-style: none;
+}
+.select-screen .team-select button {
+  background: var(--team-color);
+  border: 4px solid rgba(0, 0, 0, 0.5);
+}
+.select-screen hr {
+  height: 1%;
+  border: none;
+  border-top: 2px dotted rgb(255, 200, 200);
+  margin: 0.5rem 0;
+}
+
+.register-screen {
+  text-align: center;
+  margin-top: 1rem;
+}
+.register-screen form > .label {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+.register-screen form > .label:not(:first-of-type) {
+  margin-top: 1rem;
+}
+.register-screen input[type=text] {
+  border-radius: 2rem;
+  border: 4px solid rgba(255, 100, 100, 0.5);
+  transition: border-color 0.3s;
+  padding: 0.5rem 1rem;
+  font-size: 1.5rem;
+}
+.register-screen input[type=text]:focus {
+  border-color: rgba(255, 100, 100, 1);
+}
+.register-screen .button-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2rem;
+  width: 100%;
+  justify-content: center;
+}
+.register-screen .button-row .primary {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
 .color-picker {
   display: grid;
   grid-template-columns: repeat(3, 50px);
   column-gap: 10px;
   row-gap: 10px;
+  justify-content: center;
 }
 .color-picker > .swatch > input {
   display: none;
@@ -38,6 +122,7 @@ body {
   background: var(--swatch-color);
   outline-color: transparent;
   border: 5px solid transparent;
+  transition: border-color 0.3s;
   width: 50px;
   height: 50px;
   box-sizing: border-box;

@@ -12,7 +12,8 @@ export const SelectScreen: React.SFC<Props> = (props: Props) => {
   return (
     <div className="select-screen screen">
       <TeamSelect teams={props.teams} onSelectTeam={props.onSelectTeam} />
-      <button className="new-team" onClick={props.onNewTeam}>
+      { props.teams.length ? <hr /> : null }
+      <button className="new-team rounded-button" onClick={props.onNewTeam}>
         新規チーム登録
       </button>
     </div>
