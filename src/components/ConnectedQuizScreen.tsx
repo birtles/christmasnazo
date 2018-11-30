@@ -23,10 +23,12 @@ const mapDispatchToProps = (
     try {
       const currentTeam = await ownProps.dataStore.getTeam(team);
       const answers = currentTeam.answers.slice();
-      if (answers.length - 1 < question) {
-        answers[question] = answer;
-      } else {
-        answers.splice(question, 1, answer);
+      if (answer) {
+        if (answers.length - 1 < question) {
+          answers[question] = answer;
+        } else {
+          answers.splice(question, 1, answer);
+        }
       }
       const update: TeamUpdate = {
         id: team,
