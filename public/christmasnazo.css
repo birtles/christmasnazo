@@ -10,8 +10,11 @@ body, html {
 }
 
 body {
-  background: black;
   color: white;
+  background: black;
+  background: url('/img/background.jpg');
+  background-attachment: fixed;
+  background-size: cover;
 }
 
 .header {
