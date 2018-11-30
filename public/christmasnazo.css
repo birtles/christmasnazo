@@ -17,6 +17,14 @@ body {
   height: 100%;
 }
 
+#container {
+  display: flex;
+  justify-content: center;
+}
+.screen {
+  max-width: 500px;
+}
+
 .color-picker {
   display: grid;
   grid-template-columns: repeat(3, 50px);
