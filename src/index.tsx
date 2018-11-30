@@ -49,6 +49,9 @@ dataStore
 dataStore.getTeams().then(teams => {
   store.dispatch(actions.loadTeams(teams));
 });
+dataStore.getGameStatus().then(status => {
+  store.dispatch(actions.updateGameStatus(status));
+});
 
 // Watch for changes
 
