@@ -56,11 +56,15 @@ export const QuizScreen: React.SFC<Props> = (props: Props) => {
   return (
     <div className="quiz-screen screen">
       <div className="title" style={{ '--team-color': props.team.color }}>
+        チーム
         {props.team.name}
+        ：第
+        {String.fromCharCode(props.team.question + 9312)}
+        問題
       </div>
       <form onSubmit={onSubmit} key={props.team.question}>
         {question}
-        <input type="text" name="answer" defaultValue={answer} />
+        <textarea name="answer" defaultValue={answer} />
         <div className="button-row">
           <input
             type="submit"
