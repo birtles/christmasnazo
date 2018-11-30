@@ -66,7 +66,7 @@ dataStore.changes.on('team', (change: TeamChange) => {
 
 ReactDOM.render(
   <Provider store={store}>
-    <App dataStore={dataStore} />
+    <App dataStore={dataStore} isManager={false}/>
   </Provider>,
   document.getElementById('container')
 );
