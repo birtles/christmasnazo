@@ -60,13 +60,17 @@ dataStore.changes.on('team', (change: TeamChange) => {
   }
 });
 
+// Get app mode
+
+const isManager = location.pathname === '/manage';
+
 //
 // Render the root component
 //
 
 ReactDOM.render(
   <Provider store={store}>
-    <App dataStore={dataStore} isManager={false}/>
+    <App dataStore={dataStore} isManager={isManager}/>
   </Provider>,
   document.getElementById('container')
 );
