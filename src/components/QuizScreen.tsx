@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Team } from '../Team';
 import { questions } from '../questions';
-import { TeamProgress } from './TeamProgress';
+import { ConnectedTeamProgress } from './ConnectedTeamProgress';
 
 interface Props {
   team: Team;
@@ -18,15 +18,32 @@ declare module 'csstype' {
 }
 
 export const QuizScreen: React.SFC<Props> = (props: Props) => {
-  // XXX Show team summary
-  // XXX Show go back link even here
+  const onBack = () => {
+    if (props.team.question === 0) {
+      props.onGoHome();
+    } else {
+      props.onGoToQuestion(props.team.question - 1, props.team.id);
+    }
+  };
+
   if (props.team.question >= questions.length) {
     return (
       <div className="quiz-screen screen finished">
-        <div className="title">完了🏁</div>
+        <div className="title" style={{ '--team-color': props.team.color }}>
+          チーム
+          {props.team.name}
+          ：完了🏁
+        </div>
         <div className="explanation">
           お疲れ様です！他のチームの状況は以下のとおりです。
         </div>
+        <ConnectedTeamProgress />
+        <input
+          type="button"
+          className="minor-button"
+          value="← 戻る"
+          onClick={onBack}
+        />
       </div>
     );
   }
@@ -45,14 +62,6 @@ export const QuizScreen: React.SFC<Props> = (props: Props) => {
     props.onSubmit(props.team.question, answer, props.team.id);
   };
 
-  const onBack = () => {
-    if (props.team.question === 0) {
-      props.onGoHome();
-    } else {
-      props.onGoToQuestion(props.team.question - 1, props.team.id);
-    }
-  };
-
   return (
     <div className="quiz-screen screen">
       <div className="title" style={{ '--team-color': props.team.color }}>
@@ -63,7 +72,7 @@ export const QuizScreen: React.SFC<Props> = (props: Props) => {
         問題
       </div>
       <form onSubmit={onSubmit} key={props.team.question}>
-        {question}
+        {question.question}
         <textarea name="answer" defaultValue={answer} />
         <div className="button-row">
           <input

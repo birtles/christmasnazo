@@ -6,6 +6,7 @@ import { State } from '../reducer';
 import * as actions from '../actions';
 import { QuizScreen } from './QuizScreen';
 import { TeamUpdate } from '../Team';
+import { questions } from '../questions';
 
 interface OwnProps {
   dataStore: DataStore;
@@ -32,6 +33,9 @@ const mapDispatchToProps = (
         question: question + 1,
         answers,
       };
+      if (question === questions.length - 1) {
+        update.endTime = new Date();
+      }
       await ownProps.dataStore.updateTeam(update);
     } catch (err) {
       console.error(err);

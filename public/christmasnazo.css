@@ -70,7 +70,7 @@ body {
   background: var(--team-color);
   border: 4px solid rgba(0, 0, 0, 0.5);
 }
-.select-screen hr {
+.screen hr {
   height: 1%;
   border: none;
   border-top: 2px dotted rgb(255, 200, 200);
@@ -223,7 +223,88 @@ body {
   width: 100%;
   justify-content: center;
 }
-.register-screen .button-row .primary {
+.quiz-screen .button-row .primary {
   font-weight: bold;
   font-size: 1rem;
+}
+.quiz-screen.finished .explanation {
+  padding: 1rem;
+}
+
+.team-progress {
+  padding: 1rem;
+  border: 1px solid white;
+  border-radius: 2rem;
+}
+.team-progress .name {
+  background: var(--team-color);
+  color: black;
+  border-radius: 1rem;
+  font-weight: bold;
+  padding: 0.5rem;
+}
+.team-progress .progress {
+  display: flex;
+  justify-content: space-around;
+  padding: 0.5rem 1rem;
+}
+.team-progress .delete-team {
+  display: inline-block;
+}
+
+.manage-screen .button-row {
+  display: flex;
+  margin-top: 1rem;
+  width: 100%;
+  justify-content: space-around;
+}
+.manage-screen .finish {
+  background: lemonchiffon;
+}
+.manage-screen .restart {
+  background: green;
+}
+.manage-screen .reset {
+  color: red;
+  border: 1px solid red;
+  border-radius: 2rem;
+}
+
+.answer-summary {
+  padding: 1rem;
+}
+.answer-summary .question:not(:first-of-type) {
+  margin-top: 4rem;
+}
+.answer-summary .summary {
+  margin-top: 0.5rem;
+  text-align: center;
+}
+.answer-summary .title {
+  font-size: 2rem;
+  text-align: center;
+}
+.answer-summary .answer {
+  background: var(--team-color);
+  color: black;
+  margin: 1rem;
+  border-radius: 2rem;
+  padding: 0.5rem 1rem;
+  position: relative;
+  margin-bottom: 1.5rem;
+  white-space: pre-line;
+}
+.answer-summary .answer::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 80%;
+  width: 0;
+  height: 0;
+  border: 20px solid transparent;
+  border-top-color: var(--team-color);
+  border-bottom: 0;
+  border-right: 0;
+  margin-left: -10px;
+  margin-bottom: -20px;
 }

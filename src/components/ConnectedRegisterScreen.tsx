@@ -24,6 +24,7 @@ const mapDispatchToProps = (
         endTime: null,
       })
       .then(team => {
+        dispatch(actions.updateTeam(team));
         dispatch(actions.selectTeam(team.id));
       })
       .catch(() => {
