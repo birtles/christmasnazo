@@ -6,6 +6,7 @@ import { State, NEW_TEAM } from '../reducer';
 import { ConnectedManageScreen } from './ConnectedManageScreen';
 import { ConnectedSelectScreen } from './ConnectedSelectScreen';
 import { ConnectedRegisterScreen } from './ConnectedRegisterScreen';
+import { LoadingScreen } from './LoadingScreen';
 
 interface Props {
   dataStore: DataStore;
@@ -26,7 +27,7 @@ const AppInner: React.SFC<Props> = (props: Props) => {
   if (props.error) {
     screen = 'error';
   } else if (props.isLoading) {
-    screen = 'loading';
+    return <LoadingScreen />;
   } else if (props.isManager) {
     return <ConnectedManageScreen dataStore={props.dataStore} />;
   } else if (!props.isActive) {
