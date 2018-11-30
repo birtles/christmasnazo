@@ -4,8 +4,9 @@ import { connect } from 'react-redux';
 import { DataStore } from '../DataStore';
 import { State, NEW_TEAM } from '../reducer';
 import { ConnectedManageScreen } from './ConnectedManageScreen';
-import { ConnectedSelectScreen } from './ConnectedSelectScreen';
+import { ConnectedQuizScreen } from './ConnectedQuizScreen';
 import { ConnectedRegisterScreen } from './ConnectedRegisterScreen';
+import { ConnectedSelectScreen } from './ConnectedSelectScreen';
 import { ErrorScreen } from './ErrorScreen';
 import { LoadingScreen } from './LoadingScreen';
 
@@ -30,16 +31,14 @@ const AppInner: React.SFC<Props> = (props: Props) => {
   } else if (props.isManager) {
     return <ConnectedManageScreen dataStore={props.dataStore} />;
   } else if (!props.isActive) {
-    screen = 'results';
+    return <div className="error">Unimplemented screen</div>;
   } else if (props.teamState === 'register') {
     return <ConnectedRegisterScreen dataStore={props.dataStore} />;
   } else if (props.teamState === 'selected') {
-    screen = 'quiz';
+    return <ConnectedQuizScreen dataStore={props.dataStore} />;
   } else {
     return <ConnectedSelectScreen />;
   }
-
-  return <div className="error">Unimplemented screen</div>;
 };
 
 const mapStateToProps = (state: State) => ({
