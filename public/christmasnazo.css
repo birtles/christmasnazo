@@ -186,6 +186,10 @@ body {
   padding: 1rem;
   border-radius: 2rem;
 }
+.quiz-screen .hint a,
+.quiz-screen .hint a:visited {
+  color: white;
+}
 .quiz-screen .photos img {
   max-width: 100%;
   width: 600px;
