@@ -24,7 +24,7 @@ export const RegisterScreen: React.SFC<Props> = (props: Props) => {
     <div className="register-screen screen">
       <form onSubmit={onSubmit} onReset={onReset}>
         <div className="label">チーム名</div>
-        <input type="text" name="name" />
+        <input type="text" name="name" required />
         <div className="label">チーム色</div>
         <ColorPicker name="color"/>
         <div className="button-row">

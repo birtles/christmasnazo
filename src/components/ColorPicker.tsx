@@ -26,6 +26,7 @@ export const ColorPicker: React.SFC<Props> = (props: Props) => {
             type="radio"
             name={props.name}
             value={color}
+            required
           />
           <label
             className="label"
