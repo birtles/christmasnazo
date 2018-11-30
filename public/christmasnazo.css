@@ -308,3 +308,11 @@ body {
   margin-left: -10px;
   margin-bottom: -20px;
 }
+.answer-summary .answer .content{
+  overflow: auto;
+}
+.answer-summary .answer .name {
+  font-weight: bold;
+  display: inline;
+  float: right;
+}

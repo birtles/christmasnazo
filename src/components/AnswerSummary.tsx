@@ -38,8 +38,10 @@ export const AnswerSummary: React.SFC<Props> = (props: Props) => {
                   key={answer.team.id}
                   style={{ '--team-color': answer.team.color }}
                 >
-                  {answer.answer}
-                  <div style={{ float: 'right', fontWeight: 'bold' }}> ({answer.team.name})</div>
+                  <div className="content">
+                    {answer.answer}
+                    <div className="name">({answer.team.name})</div>
+                  </div>
                 </div>
               ))}
             </div>
