@@ -82,7 +82,7 @@ export const questions = [
         <ul>
           <li>スティッキーバンプス春秋用ワックス</li>
           <li>サラブレッド浪漫</li>
-          <li>ポラール M430 GPS</li>
+          <li>トマス</li>
         </ul>
       </>
     ),
